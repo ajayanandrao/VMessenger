@@ -1,0 +1,19 @@
+{
+  "files": {
+    "main.css": "/VMessenger/static/css/main.c3a8fc30.css",
+    "main.js": "/VMessenger/static/js/main.008f4a2c.js",
+    "static/js/206.640f6e6d.chunk.js": "/VMessenger/static/js/206.640f6e6d.chunk.js",
+    "static/media/20.png": "/VMessenger/static/media/20.635884942a48144843e5.png",
+    "static/media/sdPng.png": "/VMessenger/static/media/sdPng.3d6dbf1db256b0f153ca.png",
+    "static/media/100.png": "/VMessenger/static/media/100.7f2042bc40facba7ed79.png",
+    "static/media/waudeo.mp3": "/VMessenger/static/media/waudeo.bc63878faffbd53de6be.mp3",
+    "static/media/ring.mp3": "/VMessenger/static/media/ring.68192c0f09de34480fcf.mp3",
+    "static/media/logo.png": "/VMessenger/static/media/logo.052f2e1cfd165966b477.png",
+    "static/media/Wtune.mp3": "/VMessenger/static/media/Wtune.38ddd0843f954bf956cd.mp3",
+    "index.html": "/VMessenger/index.html"
+  },
+  "entrypoints": [
+    "static/css/main.c3a8fc30.css",
+    "static/js/main.008f4a2c.js"
+  ]
+}
