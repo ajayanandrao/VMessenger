@@ -9,7 +9,7 @@ function App() {
 
   return (
     <>
-      <Router basename='/Video'>
+      <Router basename='/VMessenger'>
         <Routes>
           <Route path='/' exact element={<Login />} />
           <Route path='home' element={<Home />} />

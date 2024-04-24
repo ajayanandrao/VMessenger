@@ -1,5 +1,5 @@
 {
-  "homepage": "http://ajayanandrao02.github.io/Video",
+  "homepage": "http://ajayanandrao02.github.io/VMessenger",
   "name": "wchat",
   "version": "0.1.0",
   "private": true,
@@ -40,7 +40,7 @@
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build",
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "set \"GENERATE_SOURCEMAP=false\" && react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

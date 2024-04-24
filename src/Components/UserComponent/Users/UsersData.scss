@@ -8,6 +8,11 @@
     border-radius: 5px;
     justify-content: space-between;
     overflow: hidden;
+    transition: 0.1s ease-in-out;
+
+    &:hover {
+        background: #383838 !important;
+    }
 
     .user-img {
         width: 45px;
@@ -104,11 +109,12 @@
 }
 
 .selected {
-    background: $wsms;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.425);
+    // background: $wsms;
+    background: $user;
+    // border-bottom: 1px solid rgba(255, 255, 255, 0.425);
 
     &:hover {
-        background: #075e54 !important;
+        background: #525252 !important;
     }
 }
 

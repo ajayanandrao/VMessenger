@@ -13,6 +13,8 @@ const VideoCall = () => {
     const [callId, setCallId] = useState('');
     const peerConnectionSaveRef = useRef(null);
 
+    const [showRemoteVideo, setShowRemoteVideo] = useState(false);
+
     const servers = {
         iceServers: [
             {
@@ -182,35 +184,35 @@ const VideoCall = () => {
             const callDocRef = doc(db, 'calls', callId);
             const answerCandidatesRef = collection(callDocRef, 'answerCandidates');
             const offerCandidatesRef = collection(callDocRef, 'offerCandidates');
-    
+
             const pc = peerConnectionSaveRef.current; // Access saved peer connection instance
-    
+
             pc.onicecandidate = (event) => {
                 event.candidate && addDoc(answerCandidatesRef, event.candidate.toJSON());
             };
-    
+
             const callData = (await getDoc(callDocRef)).data();
-    
+
             const offerDescription = callData.offer;
             await pc.setRemoteDescription(new RTCSessionDescription(offerDescription));
-    
+
             const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
             setLocalStream(stream);
             webcamVideoRef.current.srcObject = stream;
             stream.getTracks().forEach((track) => {
                 pc.addTrack(track, stream);
             });
-    
+
             const answerDescription = await pc.createAnswer();
             await pc.setLocalDescription(answerDescription);
-    
+
             const answer = {
                 type: answerDescription.type,
                 sdp: answerDescription.sdp,
             };
-    
+
             await setDoc(callDocRef, { answer });
-    
+
             onSnapshot(offerCandidatesRef, (snapshot) => {
                 snapshot.docChanges().forEach((change) => {
                     if (change.type === 'added') {
@@ -219,8 +221,8 @@ const VideoCall = () => {
                     }
                 });
             });
-    
-    
+
+
             pc.ontrack = (event) => {
                 event.streams[0].getTracks().forEach((track) => {
                     if (remoteStream) {
@@ -233,7 +235,7 @@ const VideoCall = () => {
                     }
                 });
             };
-    
+
             // Disable answer button after answering the call
             const hangupButton = document.getElementById('hangupButton');
             if (hangupButton) {
@@ -243,19 +245,29 @@ const VideoCall = () => {
             console.error('Error answering call:', error);
         }
     };
-    
+
+    useEffect(() => {
+        if (remoteVideoRef.current.srcObject) {
+            setShowRemoteVideo(true);
+        } else {
+            setShowRemoteVideo(false);
+        }
+    }, [remoteVideoRef.current]);
+
 
     return (
         <div>
             <div className='Video'>
                 <video id="webcamVideo" className='video-canvas' ref={webcamVideoRef} autoPlay muted playsInline />
-                <video id="remoteVideo" className='video-canvas ms-3' ref={remoteVideoRef} autoPlay playsInline />
+                <video id="remoteVideo" className={`${showRemoteVideo ? "remoteVideo" : "video-canvas  ms-3"} `} ref={remoteVideoRef} autoPlay playsInline />
+
             </div>
 
             <button className='btn btn-info' onClick={handleStartWebcam}>Start WebCam</button>
 
             <h2>Create a new Call</h2>
             <button className='btn btn-info' onClick={callButtonHandler}>Call</button>
+
 
             <h2>Join a Call</h2>
             <input id='callInput' />

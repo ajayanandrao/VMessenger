@@ -25,7 +25,8 @@
         .skelton-lock {
             font-size: 30px;
         }
-        .skeleton-center-div{
+
+        .skeleton-center-div {
             padding: 4px 10px;
         }
 
@@ -141,6 +142,17 @@
             margin: 0 1rem;
         }
 
+        .message-top-option-div {
+            display: flex;
+            align-items: center;
+
+            .message-top-camera-icon {
+                font-size: 20px;
+                margin-right: 1.5rem;
+                cursor: pointer;
+            }
+        }
+
         .message-top-option-btn {
             // background: red;
             // border: 1px solid $scroll-thumb;
@@ -158,8 +170,8 @@
     }
 
     .message-center-container {
-        height: calc(100% - 100px);
         width: 100%;
+        height: calc(100% - 100px);
         // background: green;
         display: flex;
         flex-direction: column-reverse;
@@ -169,6 +181,7 @@
         overflow-x: hidden;
         padding: 1rem;
         position: relative;
+        margin: 0 !important;
 
         .scroll-Btn {
             width: 30px;

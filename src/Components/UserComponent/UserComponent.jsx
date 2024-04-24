@@ -1125,21 +1125,20 @@ const UserComponent = ({ handalData, user }) => {
                                                             handleChatOn();
                                                             // handleChatUnlock();
                                                             getUerData(item.id);
-                                                            handlechatInput(item.id, item.PrivatePass, e.id, item.uid, e.accepterDocId);
+                                                            handlechatInput(item.id, item.PrivatePass, e.id, item.uid, e.accepterDocId, e.senderDocId);
                                                             handlePrivateDataLock();
                                                             handlePrivateData(item.chatLock)
 
                                                         } else {
                                                             dispatch(closeChat())
                                                             HandleSmsSeen(item.id);
-                                                            handalData(e.id, item.userId, e.accepterDocId, item.userId);
+                                                            handalData(e.id, item.userId, e.accepterDocId, item.userId, e.senderDocId);
                                                             getUerData(item.id);
                                                             handleZOne();
                                                             handleChatOn();
                                                             setchatInput(false);
                                                             handlePrivateDataLock();
                                                             handlePrivateData(false)
-
                                                             if (item.chatLock === false) {
                                                                 return
                                                             } else {

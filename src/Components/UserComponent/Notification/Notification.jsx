@@ -111,12 +111,14 @@ const Notification = ({ notiOverlay, notiOverlayTrue, SearchNotifi }) => {
                 const docIdTwo = docRefTwo.id;
 
                 await updateDoc(doc(db, `allFriends/${receiverUid}/Friends`, docId), {
-                    senderDocId: docIdTwo
+                    senderDocId: docIdTwo,
+                    accepterDocId: docId
                 });
 
 
                 await updateDoc(doc(db, `allFriends/${senderId}/Friends`, docIdTwo), {
-                    accepterDocId: docId
+                    accepterDocId: docId,
+                    senderDocId: docIdTwo,
                 });
 
                 const notificationRef = collection(db, 'Notification');

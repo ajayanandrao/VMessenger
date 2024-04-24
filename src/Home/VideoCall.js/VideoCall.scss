@@ -1,6 +1,11 @@
 .video-canvas {
     width: 100%;
-    max-width: 400px;
-    height: 300px;
+    max-width: 200px;
+    height: 200px;
     background: black;
+}
+
+.remoteVideo {
+    display: none;
+
 }

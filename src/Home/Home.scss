@@ -8,6 +8,141 @@
 
 }
 
+.isCall-div {
+    width: 100%;
+    max-width: 300px;
+    height: auto;
+    // background: $reciver;
+    background: $wsms;
+    color: white;
+    position: fixed;
+    right: 20px;
+    bottom: 70px;
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    border-radius: 5px;
+    border: 1px solid $border;
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+    padding: 20px 0;
+
+    .isCall-img {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        object-position: center;
+    }
+
+    .iscall-name {
+        font-size: 18px;
+    }
+
+    .call-btn-div {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        margin-top: 40px;
+
+        .call-item-icons {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            object-position: center;
+            cursor: pointer;
+        }
+
+        .call {
+            animation: callAni infinite ease-in-out;
+            animation-duration: 1s;
+            scale: 1;
+        }
+
+        @keyframes callAni {
+            0% {
+                scale: 0.85;
+            }
+
+            50% {
+                scale: 1;
+            }
+
+            100% {
+                scale: 0.85;
+            }
+        }
+    }
+
+
+}
+
+.Call-Div {
+    width: 100%;
+    height: 100%;
+    background: $right;
+    color: white;
+    position: fixed;
+    top: 0px;
+    left: 0;
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .Caller-inner-div {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        width: 100%;
+
+
+        .caller-img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            object-position: center;
+        }
+
+        .ringin-text {
+            font-size: 24px;
+            color: #cccc;
+        }
+
+        .call-btn-div {
+            margin-top: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 200px;
+
+            .call-item-icons {
+                font-size: 24px;
+                cursor: pointer;
+                color: #7e7e7ecc;
+            }
+
+            .call-item-icons-selected {
+                font-size: 24px;
+                cursor: pointer;
+                color: white;
+            }
+
+            .end-call-btn {
+                padding: 4px 8px;
+                border-radius: 5px;
+                background: $danger;
+                cursor: pointer;
+            }
+        }
+    }
+}
+
 .status-container {
     width: 100%;
     height: 100%;

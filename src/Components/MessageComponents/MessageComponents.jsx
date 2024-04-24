@@ -12,7 +12,7 @@ import { saveAs } from 'file-saver'
 import "./M.scss";
 import MessageBottom from './MessageBottom';
 import { motion } from "framer-motion"
-import { BsCheckAll } from 'react-icons/bs';
+import { BsCameraVideo, BsCheckAll } from 'react-icons/bs';
 import { BiCheckDouble } from "react-icons/bi";
 import FlipMove from 'react-flip-move';
 import { FaArrowLeft, FaChevronDown } from 'react-icons/fa6';
@@ -26,8 +26,11 @@ import { handleRplayData, handleRplayDataClear } from '../../Redux/Replay';
 import { CgMailReply } from "react-icons/cg";
 import { CiImageOn } from 'react-icons/ci';
 import { IoVideocamOutline } from 'react-icons/io5';
+import { IoMdMicOff } from 'react-icons/io';
+import { FiCameraOff } from "react-icons/fi";
+import Ring from '../Ring';
 
-const MessageComponents = ({ userId, friendId, accepterId, getUserUid }) => {
+const MessageComponents = ({ userId, friendId, accepterId, getUserUid, senderDocId }) => {
     var params = userId;
 
     const PData = useSelector(state => state.private);
@@ -1693,8 +1696,57 @@ const MessageComponents = ({ userId, friendId, accepterId, getUserUid }) => {
         dispatch(handleRplayDataClear())
     }
 
+
+    const [Ringing, setRinging] = useState(false);
+    const [VideoCallerId, setVideoCallerId] = useState("");
+
+
+
+    useEffect(() => {
+
+        setTimeout(async () => {
+
+            try {
+                const friendDocRef = doc(db, `allFriends/${currentUser && currentUser.uid}/Friends/${friendId}`);
+                const CurrentFriendRefTwo = doc(db, `allFriends/${user && user.uid}/Friends/${accepterId}`);
+                const colRef = doc(db, 'users', VideoCallerId);
+
+                const friendDocSnapshot = await getDoc(friendDocRef);
+                const CurrentUserDocTwo = await getDoc(CurrentFriendRefTwo);
+                if (CurrentUserDocTwo.exists() && friendDocSnapshot.exists()) {
+                    await updateDoc(friendDocRef, {
+                        callStatus: "End",
+                        timestamp: serverTimestamp()
+                    });
+                    await updateDoc(CurrentFriendRefTwo, {
+                        callStatus: "End",
+                        timestamp: serverTimestamp()
+                    });
+
+                    await updateDoc(colRef, {
+                        VideoCall: "End",
+                        VideoTime: serverTimestamp()
+                    });
+                    // console.log("Call End.");
+                    setVideoCallerId("")
+                    setRinging(false);
+                } else {
+                    // console.log("Friend document does not exist.");
+                }
+            } catch (error) {
+                console.error("Error updating call status:", error);
+            }
+        }, 12000);
+
+    }, [Ringing, friendId, accepterId, VideoCallerId]);
+
+
     // End
     const [checkFile, setcheckFile] = useState(null);
+
+    const [callMic, setcallMic] = useState(false);
+    const [callCamera, setcallCamera] = useState(false);
+
 
     if (UserEmpty && chatStatus ? !user : user) {
         return <>
@@ -1707,7 +1759,6 @@ const MessageComponents = ({ userId, friendId, accepterId, getUserUid }) => {
         </>;
     }
 
-
     const handleImgOptionOverlay = (id, url, time, check) => {
         setcheckFile(check);
         setselectDelete(id);
@@ -1715,6 +1766,9 @@ const MessageComponents = ({ userId, friendId, accepterId, getUserUid }) => {
         setimgOptionimgTime(time);
         setimgOptionOverlay(!imgOptionOverlay)
     }
+
+
+
     const handleImgOptionOverlayVideo = (id, url, time, check) => {
         setcheckFile(check);
         setselectDelete(id);
@@ -1850,13 +1904,223 @@ const MessageComponents = ({ userId, friendId, accepterId, getUserUid }) => {
         dispatch(closegetUser())
     }
 
+    const handleChatlock = async () => {
+        try {
+            // Query to find documents where PrivatePass exists
+            const querySnapshot = await getDocs(collection(db, `allFriends/${currentUser && currentUser.uid}/Message`));
+
+            // Array to store promises for batch update
+            const promises = [];
+
+            // Iterate through each document in the query snapshot
+            querySnapshot.forEach((doc) => {
+                // Check if the document data contains PrivatePass field
+                if (doc.data().PrivatePass) {
+                    // Update the document with chatLock: true
+                    const updatePromise = updateDoc(doc.ref, { chatLock: true }, { merge: true });
+                    promises.push(updatePromise);
+                }
+            });
+
+            // Execute all update promises concurrently
+            await Promise.all(promises);
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    const handleisCallEnd = async () => {
+        const callRef = doc(db, "allFriends", currentUser && currentUser.uid, "Friends");
+        try {
+            await setDoc(callRef, {
+                callStatus: "Colling",
+                remoteUid: user.uid,
+                offerUid: currentUser && currentUser.uid,
+                timestamp: serverTimestamp()
+            });
+
+        } catch (e) {
+            console.log(e)
+        }
+    }
+
+
+    const handleCallEnd = async () => {
+
+        try {
+            const friendDocRef = doc(db, `allFriends/${currentUser && currentUser.uid}/Friends/${friendId}`);
+            const CurrentFriendRefTwo = doc(db, `allFriends/${user && user.uid}/Friends/${accepterId}`);
+
+
+            const colRef = collection(db, 'users');
+            const q = query(colRef, where('uid', '==', user.uid));
+
+            getDocs(q)
+                .then((querySnapshot) => {
+                    querySnapshot.forEach((doc) => {
+                        const docRef = doc.ref;
+                        // Access the document data here
+                        console.log('Document data:', doc.data());
+                        // If you need the document ID
+                        console.log('Document ID:', doc.id);
+                        // Assuming setVideoCallerId and updateDoc are defined elsewhere
+                        setVideoCallerId(doc.id);
+
+                        // Update the document with VideoCall: "Ringing" and VideoTime: serverTimestamp()
+                        updateDoc(docRef, {  // Here colRef is a collection reference
+                            VideoCall: "End",
+                            VideoTime: serverTimestamp()
+                        }).then(() => {
+                            console.log("Document updated successfully");
+                        }).catch((error) => {
+                            console.error("Error updating document: ", error);
+                        });
+                    });
+                })
+                .catch((error) => {
+                    console.error('Error getting documents: ', error);
+                });
+
+            const friendDocSnapshot = await getDoc(friendDocRef);
+            const CurrentUserDocTwo = await getDoc(CurrentFriendRefTwo);
+
+            setRinging(true)
+            if (CurrentUserDocTwo.exists()) {
+
+                await updateDoc(friendDocRef, {
+                    callStatus: "End",
+                    timestamp: serverTimestamp()
+                });
+                await updateDoc(CurrentFriendRefTwo, {
+                    callStatus: "End",
+                    timestamp: serverTimestamp()
+                });
+                // console.log("Call status updated successfully.");
+            } else {
+                console.log("Friend document does not exist.");
+            }
+        } catch (error) {
+            console.error("Error updating call status:", error);
+        }
+    };
+    const handleCall = async () => {
+
+        try {
+            const friendDocRef = doc(db, `allFriends/${currentUser && currentUser.uid}/Friends/${friendId}`);
+            const CurrentFriendRefTwo = doc(db, `allFriends/${user && user.uid}/Friends/${accepterId}`);
+
+
+            const colRef = collection(db, 'users');
+            const q = query(colRef, where('uid', '==', user.uid));
+
+            getDocs(q)
+                .then((querySnapshot) => {
+                    querySnapshot.forEach((doc) => {
+                        const docRef = doc.ref;
+                        // Access the document data here
+                        console.log('Document data:', doc.data());
+                        // If you need the document ID
+                        console.log('Document ID:', doc.id);
+                        // Assuming setVideoCallerId and updateDoc are defined elsewhere
+                        setVideoCallerId(doc.id);
+
+                        // Update the document with VideoCall: "Ringing" and VideoTime: serverTimestamp()
+                        updateDoc(docRef, {  // Here colRef is a collection reference
+                            VideoCall: "Ringing",
+                            VideoTime: serverTimestamp()
+                        }).then(() => {
+                            console.log("Document updated successfully");
+                        }).catch((error) => {
+                            console.error("Error updating document: ", error);
+                        });
+                    });
+                })
+                .catch((error) => {
+                    console.error('Error getting documents: ', error);
+                });
+
+            const friendDocSnapshot = await getDoc(friendDocRef);
+            const CurrentUserDocTwo = await getDoc(CurrentFriendRefTwo);
+
+            setRinging(true)
+            if (CurrentUserDocTwo.exists()) {
+
+                await updateDoc(friendDocRef, {
+                    callStatus: "Calling",
+                    timestamp: serverTimestamp()
+                });
+                await updateDoc(CurrentFriendRefTwo, {
+                    callStatus: "Calling",
+                    timestamp: serverTimestamp()
+                });
+                // console.log("Call status updated successfully.");
+            } else {
+                console.log("Friend document does not exist.");
+            }
+        } catch (error) {
+            console.error("Error updating call status:", error);
+        }
+    };
+
+
+    // const handleCall = async () => {
+    //     const CurrentFriendRef = collection(db, `allFriends/${currentUser && currentUser.uid}/Friends/ ${friendId}`);
+    //     // const CurrentFriendRefTwo = collection(db, `allFriends/${user && user.uid}/Friends`);
+
+    //     try {
+    //         const CurrentUserDoc = await getDoc(doc(CurrentFriendRef, id));
+    //         // const CurrentUserDocTwo = await getDoc(doc(CurrentFriendRefTwo, accepterId));
+    //         await updateDoc(doc(CurrentFriendRef,), {
+    //             callStatus: "Colling",
+    //             timestamp: serverTimestamp()
+    //         });
+    //         // await updateDoc(doc(CurrentFriendRefTwo, accepterId), {
+    //         //     callStatus: "Colling",
+    //         //     timestamp: serverTimestamp()
+    //         // });
+    //     } catch (e) {
+    //         console.log(e)
+    //     }
+    // }
+
+
+
+    const handleCallMic = () => {
+        setcallMic(!callMic)
+    }
+    const handleCallCamera = () => {
+        setcallCamera(!callCamera)
+    }
+
+    const isCall = api.find((i) => i.uid === user.uid);
+    const isCallUid = isCall ? isCall.VideoCall : null;
+
 
     return (
         <div className='message-main' id="message-main" >
-            {!x &&
+
+            {isCallUid == "Ringing" ?
+                <div className="Call-Div">
+                    <Ring />
+                    <div className="Caller-inner-div">
+                        <img src={user.userPhoto} alt="" className='caller-img' />
+                        <span className='ringin-text'>Ringing...</span>
+                        <div className="call-btn-div">
+                            <FiCameraOff className={`${callCamera ? "call-item-icons-selected" : "call-item-icons"}`} onClick={handleCallCamera} />
+                            <IoMdMicOff className={`${callMic ? "call-item-icons-selected" : "call-item-icons"}`} onClick={handleCallMic} />
+                            <div className="end-call-btn" onClick={handleCallEnd}>End</div>
+                        </div>
+                    </div>
+                </div>
+                :
+                null
+            }
+
+            {
+                !x &&
                 <div className="message-top-bar" onClick={() => { messageOptionClose(); handleEmojiClose(); handleImgClose(); }}>
                     <div style={{ display: "flex", alignItems: "center" }} onClick={() => setchatOpton(false)}>
-                        <FaArrowLeft style={{ cursor: "pointer", }} onClick={() => { handleZMinOne(); handleChatClose(); handleClosegetData(); }} />
+                        <FaArrowLeft style={{ cursor: "pointer", }} onClick={() => { handleZMinOne(); handleChatClose(); handleClosegetData(); handleChatlock(); }} />
                         <img src={user && user.userPhoto} className='message-top-img' alt="" />
                         <div style={{ textTransform: "capitalize", fontWeight: "400", fontSize: "15px", lineHeight: "17px" }} >
                             {user && user.name}
@@ -1893,8 +2157,13 @@ const MessageComponents = ({ userId, friendId, accepterId, getUserUid }) => {
                             })}
                         </div>
                     </div>
-                    <div className='message-top-option-btn' onClick={handleChatOption} >
-                        <PiDotsThreeOutlineVerticalFill />
+
+
+                    <div className='message-top-option-div'>
+                        <BsCameraVideo className='message-top-camera-icon' onClick={handleCall} />
+                        <div className='message-top-option-btn' onClick={handleChatOption} >
+                            <PiDotsThreeOutlineVerticalFill />
+                        </div>
                     </div>
 
                     {/* overlay */}
@@ -1924,7 +2193,8 @@ const MessageComponents = ({ userId, friendId, accepterId, getUserUid }) => {
                 </div>
             }
 
-            {x &&
+            {
+                x &&
                 <div div className='skeleton-center bg-light_0 dark:bg-dark'>
                     <div className="skeleton-center-img"></div>
                     <HiLockClosed className='skelton-lock' />
@@ -1934,7 +2204,8 @@ const MessageComponents = ({ userId, friendId, accepterId, getUserUid }) => {
                 </div >
             }
 
-            {!x &&
+            {
+                !x &&
                 <div className="message-center-container" onClick={() => { handleEmojiClose(); handleImgClose(); setchatOpton(false) }} >
                     {/* OnWheel Scroll Btn */}
                     {/* <div className="message-center-container" onClick={() => { handleEmojiClose(); handleImgClose(); setchatOpton(false) }} onWheel={handleMouseScroll}> */}
@@ -1956,8 +2227,6 @@ const MessageComponents = ({ userId, friendId, accepterId, getUserUid }) => {
                             <FaArrowLeft onClick={() => { handleImgOptionOverlay(); setimgOptionDelte(false); }} className='img-option-close-btn' />
 
                             <div className="img-option-image-div" onClick={() => setimgOptionDelte(false)}>
-
-
                                 {!checkFile ?
                                     <video ref={videoRef} className="device-option-video" onClick={togglePlayPause}>
                                         <source src={imgOptionimgUrl} />
@@ -2467,13 +2736,15 @@ const MessageComponents = ({ userId, friendId, accepterId, getUserUid }) => {
                 </div >
             }
 
-            {!x &&
+            {
+                !x &&
                 <MessageBottom user={user}
                     ReplayDataText={ReplayMessageText}
                     ReplayDataId={ReplayMessageId}
                     params={params} messageOptionClose={messageOptionCloseTwo}
                     setchatOpton={setchatOpton} />
             }
+
         </div >
     )
 }
