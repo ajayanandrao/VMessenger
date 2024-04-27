@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/VMessenger/static/css/main.beb9a045.css",
-    "main.js": "/VMessenger/static/js/main.0adf2b7a.js",
+    "main.css": "/VMessenger/static/css/main.853ab09f.css",
+    "main.js": "/VMessenger/static/js/main.af9249c1.js",
     "static/js/206.640f6e6d.chunk.js": "/VMessenger/static/js/206.640f6e6d.chunk.js",
     "static/media/20.png": "/VMessenger/static/media/20.635884942a48144843e5.png",
     "static/media/sdPng.png": "/VMessenger/static/media/sdPng.3d6dbf1db256b0f153ca.png",
@@ -13,7 +13,7 @@
     "index.html": "/VMessenger/index.html"
   },
   "entrypoints": [
-    "static/css/main.beb9a045.css",
-    "static/js/main.0adf2b7a.js"
+    "static/css/main.853ab09f.css",
+    "static/js/main.af9249c1.js"
   ]
 }
