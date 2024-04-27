@@ -1789,6 +1789,22 @@ const MessageComponents = ({ userId, friendId, accepterId, getUserUid, senderDoc
     const [cameraOn, setcameraOn] = useState(false);
 
 
+    const isCa = api.find((i) => i.uid === user && user.uid);
+    const isCameraCl = isCa ? isCa.VideoCamera : null;
+
+
+    useEffect(() => {
+        if (isCameraCl == "off") {
+            handleCallEnd();
+        }
+    }, [isCameraCl]);
+
+
+
+    useEffect(() => {
+        // console.log("ooooo", isCalll);
+    });
+
 
     if (UserEmpty && chatStatus ? !user : user) {
         return <>
@@ -2005,20 +2021,17 @@ const MessageComponents = ({ userId, friendId, accepterId, getUserUid, senderDoc
                             VideoConnected: "Connected",
                             VideoTime: serverTimestamp()
                         }).then(() => {
-                            console.log("Document updated successfully");
                         }).catch((error) => {
-                            console.error("Error updating document: ", error);
                         });
                     });
                 })
                 .catch((error) => {
-                    console.error('Error getting documents: ', error);
                 });
 
         } catch (error) {
-            console.error("Error updating call status:", error);
         }
     };
+
 
 
 
@@ -2026,12 +2039,8 @@ const MessageComponents = ({ userId, friendId, accepterId, getUserUid, senderDoc
     const handleCallEnd = async () => {
 
         try {
-            const friendDocRef = doc(db, `allFriends/${currentUser && currentUser.uid}/Friends/${friendId}`);
-            const CurrentFriendRefTwo = doc(db, `allFriends/${user && user.uid}/Friends/${accepterId}`);
-
-
             const colRef = collection(db, 'users');
-            const q = query(colRef, where('uid', '==', user.uid));
+            const q = query(colRef, where('uid', '==', user ? user.uid : currentUser && currentUser.uid));
 
             getDocs(q)
                 .then((querySnapshot) => {
@@ -2061,28 +2070,13 @@ const MessageComponents = ({ userId, friendId, accepterId, getUserUid, senderDoc
                     console.error('Error getting documents: ', error);
                 });
 
-            const friendDocSnapshot = await getDoc(friendDocRef);
-            const CurrentUserDocTwo = await getDoc(CurrentFriendRefTwo);
 
-            setRinging(true)
-            if (CurrentUserDocTwo.exists()) {
-
-                await updateDoc(friendDocRef, {
-                    callStatus: "End",
-                    timestamp: serverTimestamp()
-                });
-                await updateDoc(CurrentFriendRefTwo, {
-                    callStatus: "End",
-                    timestamp: serverTimestamp()
-                });
-                // console.log("Call status updated successfully.");
-            } else {
-                console.log("Friend document does not exist.");
-            }
         } catch (error) {
             console.error("Error updating call status:", error);
         }
     };
+
+
 
     const handleCameraOn = () => [
         setcameraOn(true)
@@ -2125,7 +2119,6 @@ const MessageComponents = ({ userId, friendId, accepterId, getUserUid, senderDoc
                             CallerId: currentUser && currentUser.uid,
                             VideoTime: serverTimestamp()
                         }).then(() => {
-                            console.log("Document updated successfully");
                         }).catch((error) => {
                             console.error("Error updating document: ", error);
                         });
@@ -2182,9 +2175,9 @@ const MessageComponents = ({ userId, friendId, accepterId, getUserUid, senderDoc
 
 
     const isCall = api.find((i) => i.uid === user.uid);
-    const isCallCamera = isCall ? isCall.VideoCamera : null;
     const isCallUid = isCall ? isCall.VideoCall : null;
     const isCameraClose = isCall ? isCall.VideoCamera : null;
+
 
     // -------------------
 
@@ -2200,11 +2193,10 @@ const MessageComponents = ({ userId, friendId, accepterId, getUserUid, senderDoc
     return (
         <div className='message-main' id="message-main" >
 
-
             {isCallUid == "Ringing" ?
                 <div className="Call-Div">
 
-                    <VideoCall cameraOn={cameraOn} userData={user} isCameraClose={isCameraClose} isCallCamera={isCallCamera} handleCallEnd={handleCallEnd} isCallUid={isCallUid} />
+                    <VideoCall cameraOn={cameraOn} userData={user} isCameraClose={isCameraClose} handleCallEnd={handleCallEnd} isCallRing={isCallUid} />
                 </div>
                 :
                 null

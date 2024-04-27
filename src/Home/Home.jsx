@@ -353,7 +353,7 @@ const Home = () => {
             {isCallUid == "Ringing" ?
                 <motion.div
                     className='Call-Div'>
-                    <Wsound />
+                    {/* <Wsound /> */}
                     {/* <div>
                         <img src={callerImg} alt="" className='isCall-img' />
                     </div>

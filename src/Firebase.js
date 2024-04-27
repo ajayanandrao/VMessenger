@@ -14,24 +14,24 @@ import { getDatabase, onValue, ref, set } from "firebase/database";
 import { firebase } from "@firebase/app";
 import "@firebase/firestore";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyD1j7slqYZ3g0AuLllOyBfrZGapptVs4pE",
-  authDomain: "chat-3c10a.firebaseapp.com",
-  databaseURL: "https://chat-3c10a-default-rtdb.firebaseio.com",
-  projectId: "chat-3c10a",
-  storageBucket: "chat-3c10a.appspot.com",
-  messagingSenderId: "403187488526",
-  appId: "1:403187488526:web:ac36d8f24b6fbf3b54295f"
-};
-
 // const firebaseConfig = {
-//   apiKey: "AIzaSyA-yqLVpG2uZnkiTKpsi7eTWQKajpC1oUY",
-//   authDomain: "whatsapp-a3731.firebaseapp.com",
-//   projectId: "whatsapp-a3731",
-//   storageBucket: "whatsapp-a3731.appspot.com",
-//   messagingSenderId: "567604796434",
-//   appId: "1:567604796434:web:976cd6987edb68e5fd4ccb"
+//   apiKey: "AIzaSyD1j7slqYZ3g0AuLllOyBfrZGapptVs4pE",
+//   authDomain: "chat-3c10a.firebaseapp.com",
+//   databaseURL: "https://chat-3c10a-default-rtdb.firebaseio.com",
+//   projectId: "chat-3c10a",
+//   storageBucket: "chat-3c10a.appspot.com",
+//   messagingSenderId: "403187488526",
+//   appId: "1:403187488526:web:ac36d8f24b6fbf3b54295f"
 // };
+
+const firebaseConfig = {
+  apiKey: "AIzaSyA-yqLVpG2uZnkiTKpsi7eTWQKajpC1oUY",
+  authDomain: "whatsapp-a3731.firebaseapp.com",
+  projectId: "whatsapp-a3731",
+  storageBucket: "whatsapp-a3731.appspot.com",
+  messagingSenderId: "567604796434",
+  appId: "1:567604796434:web:976cd6987edb68e5fd4ccb"
+};
 
 // const firebaseConfig = {
 //   apiKey: "AIzaSyA9a35tXxnbm1E3TMN7edzw03HEG9cjFGY",

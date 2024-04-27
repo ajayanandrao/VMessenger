@@ -295,42 +295,32 @@ const UserComponent = ({ handalData, user }) => {
             return `${monthNames[monthIndex]} ${day}`;
         }
     }
+
+
     function PostTimeAgoComponent({ timestamp }) {
         const now = new Date();
-        const diffInSeconds = Math.floor((now - new Date(timestamp)) / 1000);
+        const messageDate = new Date(timestamp);
+        const diffInSeconds = Math.floor((now - messageDate) / 1000);
         const diffInDays = Math.floor(diffInSeconds / 86400);
 
         if (diffInDays === 0) {
             // Message sent today
-            const messageTime = new Date(timestamp);
-            const hours = messageTime.getHours();
-            const minutes = messageTime.getMinutes();
+            const hours = messageDate.getHours();
+            const minutes = messageDate.getMinutes();
             const amOrPm = hours >= 12 ? 'PM' : 'AM';
             const displayHours = hours % 12 === 0 ? 12 : hours % 12;
             return `${displayHours}:${minutes < 10 ? '0' : ''}${minutes} ${amOrPm}`;
-
-        } else if (diffInDays === 1) {
-            // Message sent yesterday
-            return "Yesterday";
-        } else if (diffInDays < 7) {
-            // Within the last week, show day name
-            const date = new Date(timestamp);
-            const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-            const dayIndex = date.getDay();
-            return dayNames[dayIndex];
-        } else if (diffInDays < 30) {
-            // If less than 30 days (approximately 1 month), show days ago
-            return `${diffInDays}d ago`;
         } else {
-            // Show month and day
-            const date = new Date(timestamp);
-            const monthNames = ["January", "February", "March", "April", "May", "June",
-                "July", "August", "September", "October", "November", "December"];
-            const day = date.getDate();
-            const monthIndex = date.getMonth();
-            return `${monthNames[monthIndex]} ${day}`;
+            const day = messageDate.getDate();
+            const month = messageDate.getMonth() + 1; // Month is zero-based, so add 1
+            const year = messageDate.getFullYear();
+
+            return `${day < 10 ? '0' : ''}${day}/${month < 10 ? '0' : ''}${month}/${year}`;
         }
     }
+
+
+
 
     const [notiOverlay, setnotiOverlay] = useState(false);
 
@@ -1206,7 +1196,7 @@ const UserComponent = ({ handalData, user }) => {
 
                                                                                                                     {item.status == "seen" ?
 
-                                                                                                                        <BiCheckDouble style={{ fontSize: "20px", color: "#40FF00", marginRight: "5px" }} />
+                                                                                                                        <BiCheckDouble style={{ fontSize: "18px", color: "#007bff", marginRight: "5px" }} />
                                                                                                                         :
                                                                                                                         null
                                                                                                                     }
@@ -1257,7 +1247,9 @@ const UserComponent = ({ handalData, user }) => {
                                                                 {item.chatLock ?
                                                                     <HiLockClosed style={{ fontSize: "20px" }} />
                                                                     :
-                                                                    <PostTimeAgoComponent timestamp={item.time && item.time.toDate()} />
+                                                                    <>
+                                                                        <PostTimeAgoComponent timestamp={item.time && item.time.toDate()} />
+                                                                    </>
                                                                 }
                                                             </div>)
                                                         }

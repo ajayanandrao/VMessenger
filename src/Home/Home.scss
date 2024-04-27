@@ -136,7 +136,7 @@
 
     .caller-user-dev {
         position: absolute;
-        top: 35%;
+        top: 25%;
         left: 50%;
         transform: translate(-50%, -50%);
         width: 100%;
@@ -154,7 +154,8 @@
             object-fit: cover;
             object-position: center;
         }
-        .ringin-call{
+
+        .ringin-call {
             color: #cccc;
         }
 
@@ -173,6 +174,35 @@
         z-index: 1;
 
     }
+
+    .end-call-btn-close-div {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        max-width: 400px;
+        position: absolute;
+        bottom: 0%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        padding: 0 50px;
+
+        .btn-one {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            object-position: center;
+        }
+
+        .btn-two {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            object-position: center;
+        }
+
+    }
+
     .end-call-btn-close {
         position: absolute;
         cursor: pointer;
