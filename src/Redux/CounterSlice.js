@@ -9,6 +9,7 @@ const initialState = {
     smollSize: 0,
     chatStatas: true,
     status: false,
+    callerId: null
 }
 
 export const CounterSlice = createSlice({
@@ -69,12 +70,18 @@ export const CounterSlice = createSlice({
         },
         statusOff: (state, action) => {
             state.status = false
+        },
+        callerUser: (state, action) => {
+            state.callerId = action.payload
+        },
+        callerUserEmpty: (state, action) => {
+            state.callerId = null
         }
     }
 
 })
 
 
-export const { on, off, getUser, closeOption, startOption, emojiFalse, emojiTrue, imgFalse, imgTrue, ZindexOne, ZindexMinasOne, closeChat, OnChat, closegetUser, statusOn, statusOff } = CounterSlice.actions;
+export const { on, off, getUser, closeOption, startOption, emojiFalse, emojiTrue, imgFalse, imgTrue, ZindexOne, ZindexMinasOne, closeChat, OnChat, closegetUser, statusOn, statusOff, callerUser, callerUserEmpty } = CounterSlice.actions;
 
 export default CounterSlice.reducer;

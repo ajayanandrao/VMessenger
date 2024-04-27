@@ -6,7 +6,7 @@ import { FaArrowLeft } from 'react-icons/fa6';
 import { VscSmiley } from 'react-icons/vsc';
 import { IoCall, IoSend } from 'react-icons/io5';
 import { BiSend } from 'react-icons/bi';
-import { collection, deleteDoc, doc, getDocs, onSnapshot, orderBy, query, serverTimestamp, setDoc, updateDoc, where } from 'firebase/firestore';
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, onSnapshot, orderBy, query, serverTimestamp, setDoc, updateDoc, where } from 'firebase/firestore';
 import { db } from '../Firebase';
 import { AuthContext } from '../AuthContaxt';
 import statusIcon from "./../Assets/status.png";
@@ -20,6 +20,7 @@ import call from "./../Assets/call.png"
 import callEnd from "./../Assets/callend.png"
 import Wsound from '../Components/Wsound';
 import { motion } from "framer-motion"
+import { callerUser, callerUserEmpty } from '../Redux/CounterSlice';
 
 const Home = () => {
     const [userData, setuserData] = useState("");
@@ -230,6 +231,77 @@ const Home = () => {
     const isCallId = isCall ? isCall.id : null;
     const isCallUid = isCall ? isCall.VideoCall : null;
 
+    const isCallConnected = isCall ? isCall.VideoConnected : null;
+
+    const callerName = isCall ? isCall.CallerName : null;
+    const callerImg = isCall ? isCall.CallerImg : null;
+    const callerId = isCall ? isCall.CallerId : null;
+    const [VideoCallerId, setVideoCallerId] = useState("");
+
+    const handleCallConnect = async () => {
+
+        try {
+            const colRef = collection(db, 'users');
+            const q = query(colRef, where('uid', '==', currentUser && currentUser.uid));
+
+            getDocs(q)
+                .then((querySnapshot) => {
+                    querySnapshot.forEach((doc) => {
+                        const docRef = doc.ref;
+                        setVideoCallerId(doc.id);
+
+                        updateDoc(docRef, {
+                            VideoConnected: "Connected",
+                            VideoTime: serverTimestamp()
+                        }).then(() => {
+                            console.log("call Connected successfully");
+                        }).catch((error) => {
+                            console.error("Error updating document: ", error);
+                        });
+                    });
+                })
+                .catch((error) => {
+                    console.error('Error getting documents: ', error);
+                });
+
+        } catch (error) {
+            console.error("Error updating call status:", error);
+        }
+    };
+
+    const handleCallDisConnect = async () => {
+
+        try {
+            const colRef = collection(db, 'users');
+            const q = query(colRef, where('uid', '==', currentUser && currentUser.uid));
+
+            getDocs(q)
+                .then((querySnapshot) => {
+                    querySnapshot.forEach((doc) => {
+                        const docRef = doc.ref;
+                        setVideoCallerId(doc.id);
+
+                        updateDoc(docRef, {
+                            VideoCamera: "off",
+                            VideoCall: "End",
+                            VideoConnected: "disConnected",
+                            VideoTime: serverTimestamp()
+                        }).then(() => {
+                            console.log("Document updated successfully");
+                        }).catch((error) => {
+                            console.error("Error updating document: ", error);
+                        });
+                    });
+                })
+                .catch((error) => {
+                    console.error('Error getting documents: ', error);
+                });
+
+        } catch (error) {
+            console.error("Error updating call status:", error);
+        }
+    };
+
     const handalcallEnd = () => {
 
         const colRef = doc(db, 'users', isCallId);
@@ -248,23 +320,49 @@ const Home = () => {
         }
     }
 
+    const dispatch = useDispatch();
+
+    const handleAnswerId = () => {
+        handleCallConnect();
+        dispatch(callerUser(callerId))
+    }
+    const handleAnswerIdNull = () => {
+        dispatch(callerUserEmpty())
+    }
+
+    const handleCloseCamera = async () => {
+
+        const colRef = doc(db, 'users', isCallId);
+        try {
+            updateDoc(colRef, {  // Here colRef is a collection reference
+                VideoCamera: "off",
+            }).then(() => {
+            }).catch((error) => {
+                console.error("Error updating document: ", error);
+            });
+            handleAnswerIdNull();
+        } catch (e) {
+            console.log(e)
+        }
+    };
+
+
     return (
         <div className='home-main'>
+
             {isCallUid == "Ringing" ?
                 <motion.div
-                    initial={{ x: 100 }}
-                    animate={{ x: 0 }}
-                    transition={{ duration: 0.5 }}
-                    className='isCall-div'>
+                    className='Call-Div'>
                     <Wsound />
-                    <div>
-                        <img src={currentUser && currentUser.photoURL} alt="" className='isCall-img' />
+                    {/* <div>
+                        <img src={callerImg} alt="" className='isCall-img' />
                     </div>
-                    <span className='iscall-name'>Ajay Anandrao</span>
+                    <span className='iscall-name'>{callerName}</span>
                     <div className="call-btn-div">
-                        <img src={callEnd} alt="" className='call-item-icons' onClick={handalcallEnd} />
-                        <img src={call} alt="" className='call-item-icons call' />
-                    </div>
+                        <img src={callEnd} alt="" className='call-item-icons' onClick={handleCloseCamera} />
+                        <img src={call} alt="" className='call-item-icons call' onClick={handleAnswerId} />
+                    </div> */}
+                    <VideoCall callerId={callerId} />
                 </motion.div>
                 : null
             }
@@ -305,7 +403,6 @@ const Home = () => {
                 getUserUid={getuser} handalDataEmty={handalDataEmty}
                 friendId={friendId} accepterId={accept} />
 
-            {/* <VideoCall /> */}
 
 
         </div >

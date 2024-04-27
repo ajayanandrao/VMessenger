@@ -1,4 +1,5 @@
 @import "./../Styles/variables.scss";
+@import "./../Styles/Mixin_New.scss";
 
 
 .home-main {
@@ -91,6 +92,114 @@
     display: flex;
     justify-content: center;
     align-items: center;
+
+
+    .video-canvas-webCam {
+        position: absolute;
+        right: 20px;
+        bottom: 20px;
+        width: 100%;
+        max-width: 100px;
+        height: 150px;
+        background: black;
+        object-fit: cover;
+        object-position: center;
+        border-radius: 5px;
+        z-index: 1;
+
+        @include respond-to(xs) {
+            max-width: 70px;
+            height: 100px;
+            right: 15px;
+            bottom: 15px;
+        }
+
+        @include respond-to(sm) {
+            max-width: 70px;
+            height: 100px;
+            right: 15px;
+            bottom: 15px;
+        }
+    }
+
+    .video-canvas-webCam-btn-close {
+        position: absolute;
+        right: 20px;
+        bottom: 20px;
+        width: 40;
+        height: 40px;
+        object-fit: cover;
+        object-position: center;
+        border-radius: 5px;
+        z-index: 1;
+    }
+
+    .caller-user-dev {
+        position: absolute;
+        top: 35%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 100%;
+        max-width: 400px;
+        height: auto;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+
+        .caller-photo {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            object-position: center;
+        }
+        .ringin-call{
+            color: #cccc;
+        }
+
+    }
+
+    .end-call-btn-ans {
+        position: absolute;
+        cursor: pointer;
+        width: 40px;
+        height: 40px;
+        object-fit: cover;
+        object-position: center;
+        bottom: 3%;
+        right: 30%;
+        transform: translate(0%, 0%);
+        z-index: 1;
+
+    }
+    .end-call-btn-close {
+        position: absolute;
+        cursor: pointer;
+        width: 40px;
+        height: 40px;
+        object-fit: cover;
+        object-position: center;
+        bottom: 3%;
+        left: 50%;
+        transform: translate(-50%, 0%);
+        z-index: 1;
+
+    }
+
+    .video-canvas-remote {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 100%;
+        max-width: 400px;
+        height: 100%;
+        background: black;
+        object-fit: cover;
+        object-position: center;
+        border-radius: 5px;
+    }
 
     .Caller-inner-div {
         display: flex;

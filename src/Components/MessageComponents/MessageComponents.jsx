@@ -19,7 +19,7 @@ import { FaArrowLeft, FaChevronDown } from 'react-icons/fa6';
 import { HiLockClosed, HiReply } from "react-icons/hi";
 import { MdDelete } from 'react-icons/md';
 import { useDispatch, useSelector } from 'react-redux';
-import { OnChat, ZindexMinasOne, ZindexOne, closeChat, closegetUser, emojiFalse, imgFalse } from '../../Redux/CounterSlice';
+import { OnChat, ZindexMinasOne, ZindexOne, callerUser, callerUserEmpty, closeChat, closegetUser, emojiFalse, imgFalse } from '../../Redux/CounterSlice';
 import { BsChatHeartFill } from "react-icons/bs";
 import Audio from '../Audio';
 import { handleRplayData, handleRplayDataClear } from '../../Redux/Replay';
@@ -29,6 +29,7 @@ import { IoVideocamOutline } from 'react-icons/io5';
 import { IoMdMicOff } from 'react-icons/io';
 import { FiCameraOff } from "react-icons/fi";
 import Ring from '../Ring';
+import VideoCall from '../../Home/VideoCall.js/VideoCall';
 
 const MessageComponents = ({ userId, friendId, accepterId, getUserUid, senderDocId }) => {
     var params = userId;
@@ -1701,44 +1702,83 @@ const MessageComponents = ({ userId, friendId, accepterId, getUserUid, senderDoc
     const [VideoCallerId, setVideoCallerId] = useState("");
 
 
+    const isCallRef = api.find((i) => i.uid === user && user.uid);
 
-    useEffect(() => {
+    const isCameraCloseRef = isCallRef ? isCallRef.VideoCamera : null;
 
-        setTimeout(async () => {
 
-            try {
-                const friendDocRef = doc(db, `allFriends/${currentUser && currentUser.uid}/Friends/${friendId}`);
-                const CurrentFriendRefTwo = doc(db, `allFriends/${user && user.uid}/Friends/${accepterId}`);
-                const colRef = doc(db, 'users', VideoCallerId);
+    const [callTime, setcallTime] = useState(false);
 
-                const friendDocSnapshot = await getDoc(friendDocRef);
-                const CurrentUserDocTwo = await getDoc(CurrentFriendRefTwo);
-                if (CurrentUserDocTwo.exists() && friendDocSnapshot.exists()) {
-                    await updateDoc(friendDocRef, {
-                        callStatus: "End",
-                        timestamp: serverTimestamp()
-                    });
-                    await updateDoc(CurrentFriendRefTwo, {
-                        callStatus: "End",
-                        timestamp: serverTimestamp()
-                    });
 
-                    await updateDoc(colRef, {
-                        VideoCall: "End",
-                        VideoTime: serverTimestamp()
-                    });
-                    // console.log("Call End.");
-                    setVideoCallerId("")
-                    setRinging(false);
-                } else {
-                    // console.log("Friend document does not exist.");
-                }
-            } catch (error) {
-                console.error("Error updating call status:", error);
-            }
-        }, 12000);
+    // useEffect(() => {
+    //     let timerId;
+    //     // const findId = api.find(i => i.id === VideoCallerId);
+    //     // const isC = findId ? findId.VideoConnected : null
 
-    }, [Ringing, friendId, accepterId, VideoCallerId]);
+    //     const startTimeout = () => {
+    //         timerId = setTimeout(async () => {
+    //             try {
+    //                 const colRef = doc(db, 'users', VideoCallerId);
+    //                 await updateDoc(colRef, {
+    //                     VideoCamera: "off",
+    //                 });
+    //                 setcallTime(!callTime)
+    //             } catch (error) {
+    //                 console.error("Error updating call status:", error);
+    //             }
+    //         }, 12000);
+    //     };
+
+    //     const clearTimer = () => {
+    //         clearTimeout(timerId);
+    //     };
+
+
+
+    //     // Start the timeout initially
+
+    //     startTimeout();
+
+
+    //     try {
+    //         const friendDocRef = doc(db, `allFriends/${currentUser && currentUser.uid}/Friends/${friendId}`);
+    //         const CurrentFriendRefTwo = doc(db, `allFriends/${user && user.uid}/Friends/${accepterId}`);
+    //         const colRef = doc(db, 'users', VideoCallerId);
+
+
+    //         const friendDocSnapshot = getDoc(friendDocRef);
+    //         const CurrentUserDocTwo = getDoc(CurrentFriendRefTwo);
+
+
+    //         if (isCameraCloseRef == "off") {
+
+    //             updateDoc(friendDocRef, {
+    //                 callStatus: "End",
+    //                 timestamp: serverTimestamp()
+    //             });
+    //         } else {
+    //             return
+    //         }
+
+    //         updateDoc(CurrentFriendRefTwo, {
+    //             callStatus: "End",
+    //             timestamp: serverTimestamp()
+    //         });
+
+    //         updateDoc(colRef, {
+    //             VideoCall: "End",
+    //             VideoTime: serverTimestamp()
+    //         });
+    //         // console.log("Call End.");
+    //         setVideoCallerId("")
+    //         setRinging(false);
+
+    //     } catch (error) {
+    //         console.error("Error updating call status:", error);
+    //     }
+    //     return clearTimer;
+
+    // }, [Ringing, callTime, friendId, accepterId, VideoCallerId, isCameraCloseRef]);
 
 
     // End
@@ -1746,6 +1786,8 @@ const MessageComponents = ({ userId, friendId, accepterId, getUserUid, senderDoc
 
     const [callMic, setcallMic] = useState(false);
     const [callCamera, setcallCamera] = useState(false);
+    const [cameraOn, setcameraOn] = useState(false);
+
 
 
     if (UserEmpty && chatStatus ? !user : user) {
@@ -1945,6 +1987,42 @@ const MessageComponents = ({ userId, friendId, accepterId, getUserUid, senderDoc
     }
 
 
+    const handleCallConnect = async () => {
+
+        try {
+            const colRef = collection(db, 'users');
+            const q = query(colRef, where('uid', '==', user.uid));
+
+            getDocs(q)
+                .then((querySnapshot) => {
+                    querySnapshot.forEach((doc) => {
+                        const docRef = doc.ref;
+                        setVideoCallerId(doc.id);
+
+                        updateDoc(docRef, {
+                            VideoCamera: "on",
+                            VideoCall: "Ringing",
+                            VideoConnected: "Connected",
+                            VideoTime: serverTimestamp()
+                        }).then(() => {
+                            console.log("Document updated successfully");
+                        }).catch((error) => {
+                            console.error("Error updating document: ", error);
+                        });
+                    });
+                })
+                .catch((error) => {
+                    console.error('Error getting documents: ', error);
+                });
+
+        } catch (error) {
+            console.error("Error updating call status:", error);
+        }
+    };
+
+
+
+
     const handleCallEnd = async () => {
 
         try {
@@ -1960,15 +2038,17 @@ const MessageComponents = ({ userId, friendId, accepterId, getUserUid, senderDoc
                     querySnapshot.forEach((doc) => {
                         const docRef = doc.ref;
                         // Access the document data here
-                        console.log('Document data:', doc.data());
+                        // console.log('Document data:', doc.data());
                         // If you need the document ID
-                        console.log('Document ID:', doc.id);
+                        // console.log('Document ID:', doc.id);
                         // Assuming setVideoCallerId and updateDoc are defined elsewhere
                         setVideoCallerId(doc.id);
 
                         // Update the document with VideoCall: "Ringing" and VideoTime: serverTimestamp()
                         updateDoc(docRef, {  // Here colRef is a collection reference
+                            VideoCamera: "off",
                             VideoCall: "End",
+                            VideoConnected: "disConnected",
                             VideoTime: serverTimestamp()
                         }).then(() => {
                             console.log("Document updated successfully");
@@ -2003,7 +2083,18 @@ const MessageComponents = ({ userId, friendId, accepterId, getUserUid, senderDoc
             console.error("Error updating call status:", error);
         }
     };
+
+    const handleCameraOn = () => [
+        setcameraOn(true)
+    ]
+
+    const handleAnswerId = () => {
+        dispatch(callerUser(currentUser && currentUser.uid))
+    }
+
     const handleCall = async () => {
+
+        handleAnswerId();
 
         try {
             const friendDocRef = doc(db, `allFriends/${currentUser && currentUser.uid}/Friends/${friendId}`);
@@ -2012,21 +2103,26 @@ const MessageComponents = ({ userId, friendId, accepterId, getUserUid, senderDoc
 
             const colRef = collection(db, 'users');
             const q = query(colRef, where('uid', '==', user.uid));
+            handleCameraOn();
 
             getDocs(q)
                 .then((querySnapshot) => {
                     querySnapshot.forEach((doc) => {
                         const docRef = doc.ref;
                         // Access the document data here
-                        console.log('Document data:', doc.data());
+                        // console.log('Document data:', doc.data());
                         // If you need the document ID
-                        console.log('Document ID:', doc.id);
+                        // console.log('Document ID:', doc.id);
                         // Assuming setVideoCallerId and updateDoc are defined elsewhere
                         setVideoCallerId(doc.id);
 
                         // Update the document with VideoCall: "Ringing" and VideoTime: serverTimestamp()
                         updateDoc(docRef, {  // Here colRef is a collection reference
+                            VideoCamera: "on",
                             VideoCall: "Ringing",
+                            CallerImg: currentUser && currentUser.photoURL,
+                            CallerName: currentUser && currentUser.displayName,
+                            CallerId: currentUser && currentUser.uid,
                             VideoTime: serverTimestamp()
                         }).then(() => {
                             console.log("Document updated successfully");
@@ -2085,36 +2181,51 @@ const MessageComponents = ({ userId, friendId, accepterId, getUserUid, senderDoc
 
 
 
-    const handleCallMic = () => {
-        setcallMic(!callMic)
-    }
-    const handleCallCamera = () => {
-        setcallCamera(!callCamera)
-    }
-
     const isCall = api.find((i) => i.uid === user.uid);
+    const isCallCamera = isCall ? isCall.VideoCamera : null;
     const isCallUid = isCall ? isCall.VideoCall : null;
+    const isCameraClose = isCall ? isCall.VideoCamera : null;
 
+    // -------------------
+
+    const isCallAns = api.find((i) => i.uid === currentUser.uid);
+    const isCallId = isCallAns ? isCallAns.id : null;
+    const isCallConnected = isCallAns ? isCallAns.VideoConnected : null;
+
+    // const isCallUidAns = isCallAns ? isCallAns.VideoCall : null;
+    // const callerName = isCallAns ? isCallAns.CallerName : null;
+    // const callerImg = isCallAns ? isCallAns.CallerImg : null;
+    // const callerId = isCallAns ? isCallAns.CallerId : null;
 
     return (
         <div className='message-main' id="message-main" >
 
+
             {isCallUid == "Ringing" ?
                 <div className="Call-Div">
-                    <Ring />
-                    <div className="Caller-inner-div">
-                        <img src={user.userPhoto} alt="" className='caller-img' />
-                        <span className='ringin-text'>Ringing...</span>
-                        <div className="call-btn-div">
-                            <FiCameraOff className={`${callCamera ? "call-item-icons-selected" : "call-item-icons"}`} onClick={handleCallCamera} />
-                            <IoMdMicOff className={`${callMic ? "call-item-icons-selected" : "call-item-icons"}`} onClick={handleCallMic} />
-                            <div className="end-call-btn" onClick={handleCallEnd}>End</div>
-                        </div>
-                    </div>
+
+                    <VideoCall cameraOn={cameraOn} userData={user} isCameraClose={isCameraClose} isCallCamera={isCallCamera} handleCallEnd={handleCallEnd} isCallUid={isCallUid} />
                 </div>
                 :
                 null
             }
+
+
+            {/* {user.uid === currentUser && currentUser.uid ?
+                <>
+                    {isCallConnected == "Connected" ?
+                        <div className="Call-Div">
+
+                            <VideoCall cameraOn={cameraOn} userData={user} isCameraClose={isCameraClose} isCallCamera={isCallCamera} handleCallEnd={handleCallEnd} isCallUid={isCallUid} />
+                        </div>
+                        :
+                        null}
+                </>
+                :
+                null
+            } */}
+
+
 
             {
                 !x &&
@@ -2156,6 +2267,7 @@ const MessageComponents = ({ userId, friendId, accepterId, getUserUid, senderDoc
                                 }
                             })}
                         </div>
+
                     </div>
 
 
