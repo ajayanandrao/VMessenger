@@ -189,6 +189,7 @@ const VideoCall = ({ isCallCamera, cameraOn, handleCallEnd, handleCallConnect, i
 
 
     const handleStartWebcam = async (id) => {
+        console.log(id)
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
             setLocalStream(stream);
